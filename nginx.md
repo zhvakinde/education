@@ -205,3 +205,52 @@ namespace "nginx" {
   }
 }
 ```
+#### Пояснение о том, как получил SSL сертификат на два балансировщика
+на сервере lb1 установлен letsencrypt  и настроен нжинкс для полунеия сертификата
+на сервере lb2 настроенно проксирование на lb 1
+```
+  location /.well-known {
+    proxy_pass http://lb1.e20e5182391bea02c50f4552250057a2.kis.im/.well-known;
+  }
+ ```
+ на сервере lb1 настроенна утилита Lsyncd для синхронизации содержимого каталога /etc/letsencrypt на сервер lb2 через ssh с использованием аутификации через ключи ( Lsyncd позволяет отслеживать состояние каталога с помощью подсистемы ядра inotify, и при помощи утилиты синхронизации rsync, менять содержимое другого каталога, таким образом, приводя оба каталога к единому виду.)
+ lsyncd.conf.lua
+ ```
+  sync {
+    default.rsyncssh,
+    source = "/etc/letsencrypt",
+    host = "user@167.71.63.103",
+    targetdir = "/etc/letsencrypt",
+    rsync = {
+        _extra = { "-a" }
+    }
+}
+ ```
+ #### ответ от сервера
+ ```
+ [root@cnt 22.DNS]# curl -D - -s https://app.e20e5182391bea02c50f4552250057a2.kis.im
+HTTP/1.1 200 OK
+Server: nginx/1.18.0 (Ubuntu)
+Date: Sun, 13 Feb 2022 12:51:52 GMT
+Content-Type: text/plain; charset=utf-8
+Content-Length: 299
+Connection: keep-alive
+
+Hostname: app1
+IP: 127.0.0.1
+IP: ::1
+IP: 167.71.43.213
+IP: 10.19.0.8
+IP: fe80::9c65:7ff:fe71:b1a1
+IP: 10.114.0.5
+IP: fe80::dcee:59ff:fede:f6d2
+RemoteAddr: 127.0.0.1:58886
+GET / HTTP/1.1
+Host: 127.0.0.1:8080
+User-Agent: curl/7.29.0
+Accept: */*
+Connection: close
+X-Forwarded-For: 5.142.119.54
+ ```
+ ####  access логи 
+

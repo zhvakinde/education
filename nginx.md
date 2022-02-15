@@ -185,3 +185,23 @@ http {
         include /etc/nginx/sites-enabled/*;
 }
 ```
+#### конфигурацию nginxlog-exporter с lb1 / lb2
+```
+listen {
+  port = 4040
+}
+
+namespace "nginx" {
+  source = {
+    files = [
+      "/var/log/nginx/access.log"
+    ]
+  }
+
+ format = "$remote_addr - $remote_user [$time_local] \"$request\" $status $body_bytes_sent \"$http_referer\" \"$http_user_agent\" \"$http_x_forwarded_for\" $upstream_response_time $request_time"
+
+  labels {
+    app = "default"
+  }
+}
+```

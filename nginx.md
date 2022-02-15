@@ -1,5 +1,7 @@
 
 
+
+##### вывод nginx -V с lb1 / lb2
 ```
 user@lb1:/opt$ nginx -V
 nginx version: nginx/1.18.0 (Ubuntu)

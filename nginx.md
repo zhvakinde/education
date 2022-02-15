@@ -130,4 +130,58 @@ http {
         include /etc/nginx/sites-enabled/*;
 }
 ```
+#### Kонфигурация nginx c app1 / app2
+```
+server {
+  listen 80;
+  server_name app.e20e5182391bea02c50f4552250057a2.kis.im;
 
+
+
+  location / {
+  proxy_pass http://127.0.0.1:8080;
+  set_real_ip_from 164.92.228.134;
+  set_real_ip_from 167.71.63.103;
+  real_ip_header    X-Forwarded-For;
+ 
+  }
+}
+```
+#### nginx.conf с app1 / app2
+```
+user www-data;
+worker_processes auto;
+pid /run/nginx.pid;
+include /etc/nginx/modules-enabled/*.conf;
+
+events {
+        worker_connections 768;
+
+}
+
+http {
+
+        sendfile on;
+        tcp_nopush on;
+        tcp_nodelay on;
+        keepalive_timeout 65;
+        types_hash_max_size 2048;
+
+        include /etc/nginx/mime.types;
+        default_type application/octet-stream;
+
+        ssl_protocols TLSv1 TLSv1.1 TLSv1.2 TLSv1.3; # Dropping SSLv3, ref: POODLE
+        ssl_prefer_server_ciphers on;
+
+        log_format time "$request $request_time $upstream_response_time";
+
+        access_log /var/log/nginx/access.log;
+        access_log /var/log/nginx/access.log time;
+        error_log /var/log/nginx/error.log;
+
+        gzip on;
+
+        include /etc/nginx/conf.d/*.conf;
+        include /etc/nginx/sites-enabled/*;
+}
+```
